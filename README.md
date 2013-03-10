@@ -5,6 +5,7 @@
 ## Log syntax
 
     |Log Tab Key|LOG
+* if '|' not exist at index-0, Tab Key is set to "View IP:Port"    
 
 ## Requirement
 * You can build with Qt Creator
