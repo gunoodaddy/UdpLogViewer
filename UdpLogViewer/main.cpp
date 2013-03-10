@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 #if defined(Q_WS_WIN)
 
 	HANDLE semaphore;
-	semaphore = CreateSemaphore(NULL, 1, 1, L"gunoodaddy-0813-sharedpainter");
+	semaphore = CreateSemaphore(NULL, 1, 1, PROGRAM_SEMAPHORE_KEY);
 	BOOL alreadyExist = (GetLastError() == ERROR_ALREADY_EXISTS);
 	if(alreadyExist)
 	{
