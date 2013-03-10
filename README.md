@@ -4,9 +4,7 @@
 
 ## Log syntax
 
-<code>
-|Log Tab Key|LOG
-<code>
+    |Log Tab Key|LOG
 
 ## Requirement
 * You can build with Qt Creator
