@@ -488,9 +488,9 @@ void UdpLogViewer::onClickedScrollPin(bool checked)
 		QTextEdit *logTextEdit = getCurrentLogTextEdit();
 		if(logTextEdit != NULL)
 		{
-			logTextEdit->horizontalScrollBar()->setValue(0);
 			logTextEdit->moveCursor(QTextCursor::End);
 			logTextEdit->ensureCursorVisible();
+			logTextEdit->horizontalScrollBar()->setValue(0);
 		}
 	}
 }
