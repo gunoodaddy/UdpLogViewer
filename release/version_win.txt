@@ -1,0 +1,67 @@
+0.11.0
+- screen record feature beta open
+
+0.10.2
+- user history(painter) list bug fix
+
+0.10.1
+- [Close all connections] bug fix
+- when changing channel, only reconnect on relay server mode. 
+
+0.10.0
+- protocol version added for protocol compatability check
+
+0.9.1
+- About windows size grip enabled
+
+0.9.0
+- version compare logic bug fix
+
+0.8.10
+- [Connect to Peer] bug fix
+
+0.8.9
+- auto load last saved file on init
+- playback minor bug fix
+
+0.8.8
+- auto save file(export) before clear screen
+- high quality move item option added
+- minor bug fix
+
+0.8.7
+- massive packet parse bug fix
+
+0.8.6
+- multiple items selection and move by drag
+- item tooltip added (nickname show up)
+
+0.8.5
+- myself enter channel event bug fix
+- canvas size sync bug fix
+
+0.8.4
+- Blink last item bug fix
+
+0.8.3
+- [Save Image] bug fix
+
+0.8.2
+- Painter list feature (you can see paint items that person who you select draw.)
+- minor bug fix 
+
+0.8.1
+- scrollbar sync feature
+- preferences update
+- protocol command changed. (not compatible)
+
+0.7.7
+- [import from file] bug fix
+
+0.7.6 
+- joiner list view added
+- tray icon removed on Mac
+- minor bug fix
+
+After restart this app, if you cannot see 0.10.0 string in the app's title bar,
+please tell gunoodaddy this issue.
