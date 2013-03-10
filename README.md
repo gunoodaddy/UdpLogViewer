@@ -1,7 +1,6 @@
 # UdpLogViewer
 
-# Log syntax
-
+## Log syntax
    |Log Tab Key|LOG
 
 ## Requirement
