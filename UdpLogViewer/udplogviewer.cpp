@@ -280,14 +280,14 @@ void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 	if(headerParsed == false)
 		logTextEdit->append(logMsg);
 
+	doHighlightText(ui.searchText->text(), true, ui.caseSensitiveCheck->isChecked());
+
 	if(ui.scrollPinCheck->isChecked() == false)
 	{
 		logTextEdit->moveCursor(QTextCursor::End);
 		logTextEdit->ensureCursorVisible();
+		logTextEdit->horizontalScrollBar()->setValue(0);
 	}
-
-	doHighlightText(ui.searchText->text(), true, ui.caseSensitiveCheck->isChecked());
-	logTextEdit->horizontalScrollBar()->setValue(0);
 }
 
 QTextEdit *UdpLogViewer::getCurrentLogTextEdit() 
@@ -488,6 +488,7 @@ void UdpLogViewer::onClickedScrollPin(bool checked)
 		QTextEdit *logTextEdit = getCurrentLogTextEdit();
 		if(logTextEdit != NULL)
 		{
+			logTextEdit->horizontalScrollBar()->setValue(0);
 			logTextEdit->moveCursor(QTextCursor::End);
 			logTextEdit->ensureCursorVisible();
 		}
