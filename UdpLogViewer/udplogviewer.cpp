@@ -287,6 +287,7 @@ void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 	}
 
 	doHighlightText(ui.searchText->text(), true, ui.caseSensitiveCheck->isChecked());
+	logTextEdit->horizontalScrollBar()->setValue(0);
 }
 
 QTextEdit *UdpLogViewer::getCurrentLogTextEdit() 
