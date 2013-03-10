@@ -1,5 +1,5 @@
 1.4.1
-keep original horizontal scroll bar position
+scroll pin keep original horizontal scroll bar position too.
 
 1.4.0
 - update test
