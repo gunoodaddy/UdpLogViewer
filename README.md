@@ -3,7 +3,8 @@
 
 
 ## Log syntax
-   |Log Tab Key|LOG
+
+> |Log Tab Key|LOG
 
 ## Requirement
 * You can build with Qt Creator
