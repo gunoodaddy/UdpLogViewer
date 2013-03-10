@@ -4,9 +4,11 @@
 #include <QtGui/QMainWindow>
 #include "ui_UdpLogViewer.h"
 #include "UdpLogManager.h"
+#include "UpgradeManager.h"
 #include "DefferedCaller.h"
+#include "UpgradeWindow.h"
 
-class UdpLogViewer : public QMainWindow, IUdpLogManagerEvent
+class UdpLogViewer : public QMainWindow, IUdpLogManagerEvent, IUpgradeEvent
 {
 	Q_OBJECT
 
@@ -60,6 +62,15 @@ private:
 
 		//QString addr = QString::fromStdString(address);
 		CDefferedCaller::singleShot( boost::bind(&UdpLogViewer::addLogMessage, this, key, log) );
+	}
+
+	virtual void onIUpgradeEvent_NewVersion( CUpgradeManager *self, const std::string &version, const std::string &patchContents )
+	{
+		UpgradeWindow wnd(this);
+
+		wnd.setContents( version.c_str(), QString::fromUtf8(patchContents.c_str()) );
+
+		wnd.exec();
 	}
 
 private:

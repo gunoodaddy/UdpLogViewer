@@ -6,6 +6,8 @@
 UdpLogViewer::UdpLogViewer(QWidget *parent, Qt::WFlags flags)
 : QMainWindow(parent, flags), doHighlightWorking_(false)
 {
+	UpgradeManagerPtr()->registerObserver( this );
+
 	setWindowIcon( QIcon( QPixmap(":/UdpLogViewer/Resources/UdpLogViewer.ico") ) );
 
 	ui.setupUi(this);
@@ -47,7 +49,7 @@ UdpLogViewer::UdpLogViewer(QWidget *parent, Qt::WFlags flags)
 
 UdpLogViewer::~UdpLogViewer()
 {
-
+	UpgradeManagerPtr()->unregisterObserver( this );
 }
 
 void UdpLogViewer::closeEvent( QCloseEvent *evt )

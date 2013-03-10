@@ -7,12 +7,12 @@
 
 #ifdef Q_WS_WIN
 #define PROGRAM_UPGRADER_FILE_NAME	L"SimplePatcher.exe"
-#define REMOTE_UPGRADE_VERSION_URL	"https://raw.github.com/gunoodaddy/SharedPainter/master/release/version_win.txt"
-#define REMOTE_UPGRADE_PATCH_URL	"https://raw.github.com/gunoodaddy/SharedPainter/master/release/patch_win.zip"
+#define REMOTE_UPGRADE_VERSION_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/version_win.txt"
+#define REMOTE_UPGRADE_PATCH_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/patch_win.zip"
 #elif Q_WS_MAC
 #define PROGRAM_UPGRADER_FILE_NAME	L"SimplePatcher"
-#define REMOTE_UPGRADE_VERSION_URL	"https://raw.github.com/gunoodaddy/SharedPainter/master/release/version_mac.txt"
-#define REMOTE_UPGRADE_PATCH_URL	"https://raw.github.com/gunoodaddy/SharedPainter/master/release/patch_mac.zip"
+#define REMOTE_UPGRADE_VERSION_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/version_mac.txt"
+#define REMOTE_UPGRADE_PATCH_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/patch_mac.zip"
 #else
 #define PROGRAM_UPGRADER_FILE_NAME	L""
 #define REMOTE_UPGRADE_VERSION_URL ""
