@@ -1,7 +1,8 @@
 # UdpLogViewer
 
 ## Requirement
-* You can build with Qt Creator 
+* You can build with Qt Creator
+* double click `UdpLogViewer/UdpLogViewer.pro` file
 
 ### Common Requirements
 * Qt 4.8.2+ (http://qt-project.org/downloads) <br>
