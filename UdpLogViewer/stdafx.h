@@ -9,7 +9,8 @@
 #include <QtGui>
 #include "Util.h"
 
-#define VERSION_TEXT	"1.3.3"
+#define VERSION_TEXT	"1.4.1"
 
 #define AUTHOR_TEXT		"gunoodaddy"
-#define PROGRAME_TEXT	"UDP Log Server"
+#define PROGRAM_TEXT	"UDP Log Server"
+#define PROGRAM_SEMAPHORE_KEY L"gunoodaddy-0813-sharedpainter"

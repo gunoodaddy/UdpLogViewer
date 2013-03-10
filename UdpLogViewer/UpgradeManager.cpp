@@ -6,16 +6,16 @@
 #endif
 
 #ifdef Q_WS_WIN
-#define PROGRAM_UPGRADER_FILE_NAME	L"SimplePatcher.exe"
+#define PROGRAM_UPGRADER_FILE_NAME	"SimplePatcher.exe"
 #define REMOTE_UPGRADE_VERSION_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/version_win.txt"
 #define REMOTE_UPGRADE_PATCH_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/patch_win.zip"
 #elif Q_WS_MAC
-#define PROGRAM_UPGRADER_FILE_NAME	L"SimplePatcher"
+#define PROGRAM_UPGRADER_FILE_NAME	"SimplePatcher"
 #define REMOTE_UPGRADE_VERSION_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/version_mac.txt"
 #define REMOTE_UPGRADE_PATCH_URL	"https://raw.github.com/gunoodaddy/UdpLogViewer/master/release/patch_mac.zip"
 #else
-#define PROGRAM_UPGRADER_FILE_NAME	L""
-#define REMOTE_UPGRADE_VERSION_URL ""
+#define PROGRAM_UPGRADER_FILE_NAME	""
+#define REMOTE_UPGRADE_VERSION_URL	""
 #define REMOTE_UPGRADE_PATCH_URL	""
 #error "this platform not support"
 #endif
@@ -73,9 +73,15 @@ void CUpgradeManager::doUpgradeNow( void )
 
 	gotoState( WaitForUnlimited );
 
+	QString path = qApp->applicationDirPath() + QDir::separator() + PROGRAM_UPGRADER_FILE_NAME;
+
 	// Run Upgrader
 #if defined(Q_WS_WIN)
-	ShellExecute(NULL, L"open", PROGRAM_UPGRADER_FILE_NAME, L"", L"", SW_SHOWNORMAL);
+	QString parameter = QFileInfo( QCoreApplication::applicationFilePath() ).fileName();
+	parameter += " ";
+	parameter += QString::fromStdWString(PROGRAM_SEMAPHORE_KEY);
+
+	ShellExecute(NULL, L"open", path.toStdWString().c_str(), parameter.toStdWString().c_str(), L"", SW_SHOWNORMAL);
 #else
 	// TODO : other platform(MacOS) launch program.
 	assert( false );
@@ -222,7 +228,9 @@ void CUpgradeManager::processPatchFile( void )
 {
 	QByteArray res = currentReply_->readAll();
 
-	QFile f( DEFAULT_UPGRADE_FILE_NAME );
+	QString path = qApp->applicationDirPath() + QDir::separator() + DEFAULT_UPGRADE_FILE_NAME;
+
+	QFile f( path );
 	if( !f.open( QIODevice::WriteOnly ) )
 	{
 		gotoState( ErrorState );

@@ -119,7 +119,7 @@ QString getAuthorText()
 void UdpLogViewer::updateWindowTitle( void )
 {
 	// Title
-	QString newTitle = PROGRAME_TEXT;
+	QString newTitle = PROGRAM_TEXT;
 	newTitle += " Ver ";
 	newTitle += VERSION_TEXT;
 	newTitle += " by ";

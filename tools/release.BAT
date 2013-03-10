@@ -1,0 +1,18 @@
+@ECHO OFF 
+
+@SET RELEASE_DIR=..\Win32\Release
+@SET TARGET_DIR=..\release
+
+@SET PATCH_FILE1=UdpLogViewer.exe
+@SET PATCH_FILE1_TEMP=%PATCH_FILE1%_
+
+@SET OUTPUT_FILE=patch_win.zip
+
+copy %RELEASE_DIR%\%PATCH_FILE1% %PATCH_FILE1_TEMP%
+
+del /s %TARGET_DIR%\%OUTPUT_FILE%
+7z a -tzip %TARGET_DIR%\%OUTPUT_FILE% %PATCH_FILE1_TEMP%
+del /F/Q/S %PATCH_FILE1_TEMP%
+
+notepad %TARGET_DIR%\version_win.txt
+
