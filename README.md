@@ -1,5 +1,9 @@
 # UdpLogViewer
 
+# Log syntax
+
+   |Log Tab Key|LOG
+
 ## Requirement
 * You can build with Qt Creator
 * double click `UdpLogViewer/UdpLogViewer.pro` file
