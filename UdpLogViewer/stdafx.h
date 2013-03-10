@@ -9,7 +9,7 @@
 #include <QtGui>
 #include "Util.h"
 
-#define VERSION_TEXT	"1.4.0"
+#define VERSION_TEXT	"1.4.1"
 
 #define AUTHOR_TEXT		"gunoodaddy"
 #define PROGRAM_TEXT	"UDP Log Viewer"
