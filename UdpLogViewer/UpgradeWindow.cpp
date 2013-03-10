@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "UpgradeWindow.h"
-#include "UpgradeManager.h"
+#include "UpgradeManager/UpgradeManager.h"
 
 static const char *gStyleSheet_UpdateEdit = 
 ".version{"

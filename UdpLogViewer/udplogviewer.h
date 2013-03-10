@@ -4,8 +4,8 @@
 #include <QtGui/QMainWindow>
 #include "ui_UdpLogViewer.h"
 #include "UdpLogManager.h"
-#include "UpgradeManager.h"
-#include "DefferedCaller.h"
+#include "UpgradeManager/UpgradeManager.h"
+#include "NetworkEngine/DefferedCaller.h"
 #include "UpgradeWindow.h"
 
 class UdpLogViewer : public QMainWindow, IUdpLogManagerEvent, IUpgradeEvent

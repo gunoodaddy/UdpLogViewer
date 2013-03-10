@@ -1,7 +1,7 @@
 #pragma once
 
-#include "NetUdpSession.h"
-#include "NetServiceRunner.h"
+#include "NetworkEngine/NetUdpSession.h"
+#include "NetworkEngine/NetServiceRunner.h"
 
 class IUdpLogManagerEvent 
 {
