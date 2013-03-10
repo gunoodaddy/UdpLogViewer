@@ -1,5 +1,2 @@
-1.4.1
-keep original horizontal scroll bar position
-
 1.4.0
 - update test
