@@ -23,9 +23,10 @@ public:
 	void loadCurrent();
 	void saveCurrent();
 	QTextEdit *getCurrentLogTextEdit();
-	void doHighlightText(QString text, bool fromFirst = true, bool caseSensitive = false);
+	void doHighlightText(QString text, bool fromFirst = true, bool caseSensitive = false, bool forceMode = true);
 
 protected slots:
+	void onHighlightTimer();
 	void onClickedScrollPin(bool checked);
 	void onTabRemoveSlot();
 	void onClickedCSSReload();
@@ -78,11 +79,16 @@ private:
 
 	UdpLogManager manager_;
 
+	QTimer *timerUpdate_;
 	QMap<QString, QTextEdit *> logTextWidgetMap_;
 	QString loadedCSS_;
 	QString searchSelectionFgColor_;
 	QString searchSelectionBgColor_;
+
+	QString lastHighlightText_;
+	int lastScannedCursorPosition_;
 	bool doHighlightWorking_;
+	bool requestHighlight_;
 };
 
 #endif // UdpLogViewer_H

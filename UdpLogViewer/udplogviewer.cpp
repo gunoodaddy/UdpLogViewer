@@ -4,7 +4,7 @@
 #include "GlobalEvent.h"
 
 UdpLogViewer::UdpLogViewer(QWidget *parent, Qt::WFlags flags)
-: QMainWindow(parent, flags), doHighlightWorking_(false)
+: QMainWindow(parent, flags), doHighlightWorking_(false), requestHighlight_(false)
 {
 	UpgradeManagerPtr()->registerObserver( this );
 
@@ -45,6 +45,10 @@ UdpLogViewer::UdpLogViewer(QWidget *parent, Qt::WFlags flags)
     toolBtn->setIcon(QIcon(":/UdpLogViewer/Resources/remove.png"));
 	QObject::connect(toolBtn, SIGNAL(clicked()), this, SLOT(onTabRemoveSlot()));
 	ui.tabWidget->setCornerWidget(toolBtn, Qt::TopRightCorner);
+
+	timerUpdate_ = new QTimer(this);
+	timerUpdate_->start(200);
+	connect(timerUpdate_, SIGNAL(timeout()),this, SLOT(onHighlightTimer()));
 }
 
 UdpLogViewer::~UdpLogViewer()
@@ -114,6 +118,19 @@ QString getAuthorText()
 	author.append(1 + 99);	// 100
 	author.append(1 + 120);	// 121
 	return author;
+}
+
+void UdpLogViewer::onHighlightTimer()
+{
+	if(requestHighlight_) 
+	{
+		requestHighlight_ = false;
+
+		if(doHighlightWorking_ == false) 
+		{
+			CDefferedCaller::singleShot( boost::bind(&UdpLogViewer::doHighlightText, this, ui.searchText->text(), true, ui.caseSensitiveCheck->isChecked(), false ));
+		}
+	}
 }
 
 void UdpLogViewer::updateWindowTitle( void )
@@ -280,7 +297,7 @@ void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 	if(headerParsed == false)
 		logTextEdit->append(logMsg);
 
-	doHighlightText(ui.searchText->text(), true, ui.caseSensitiveCheck->isChecked());
+	doHighlightText(ui.searchText->text(), false, ui.caseSensitiveCheck->isChecked(), true);
 
 	if(ui.scrollPinCheck->isChecked() == false)
 	{
@@ -336,9 +353,16 @@ void UdpLogViewer::onClickedCSSReload()
 	}
 }
 
-void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensitive)
+void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensitive, bool forceMode)
 {
-	qDebug() << "doHighlightText : " << doHighlightWorking_ << GlobalEventPtr()->isMousePressed();
+	qDebug() << "doHighlightText : " << forceMode << fromFirst;
+
+	if(forceMode == false && text == lastHighlightText_) 
+	{
+		return;
+	}
+
+	lastHighlightText_ = text;
 
 	if(doHighlightWorking_)
 		return;
@@ -356,7 +380,14 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 
 		QList<QTextEdit::ExtraSelection> extraSelections;
 		if(fromFirst)
+		{
 			logTextEdit->moveCursor(QTextCursor::Start);
+		}
+		else
+		{
+			extraSelections = logTextEdit->extraSelections();
+		}
+
 
 		QColor fgColor = QColor(searchSelectionFgColor_);
 		QColor bgColor = QColor(searchSelectionBgColor_);
@@ -375,6 +406,7 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 		logTextEdit->verticalScrollBar()->setValue(orgValueVert);
 		logTextEdit->horizontalScrollBar()->setValue(orgValueHor);
 	}
+
 	doHighlightWorking_ = false;
 }
 
@@ -387,7 +419,8 @@ void UdpLogViewer::onLogSelectionChanged()
 	if(logTextEdit != NULL)
 	{
 		QString s = logTextEdit->textCursor().selectedText();
-		if(s.isEmpty() == false)
+
+		if(s.isEmpty() == false && s.length() < 50)
 		{
 			qDebug() << "onLogSelectionChanged : " << doHighlightWorking_ << GlobalEventPtr()->isMousePressed() << s;
 
@@ -398,7 +431,8 @@ void UdpLogViewer::onLogSelectionChanged()
 
 void UdpLogViewer::onChangedSearchText(QString text)
 {
-	doHighlightText(text, true, ui.caseSensitiveCheck->isChecked());
+	requestHighlight_ = true;
+	//doHighlightText(text, true, ui.caseSensitiveCheck->isChecked());
 }
 
 void UdpLogViewer::onClickedLogClear()
@@ -419,7 +453,8 @@ void UdpLogViewer::onClickedTabAllClear()
 
 void UdpLogViewer::onClickedCaseSensitive(bool checked)
 {
-	doHighlightText(ui.searchText->text(), true, checked);
+	requestHighlight_ = true;
+	//doHighlightText(ui.searchText->text(), true, checked);
 }
 
 void UdpLogViewer::onClickedWordWrap(bool checked)
