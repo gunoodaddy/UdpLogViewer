@@ -8,6 +8,15 @@
 #include "NetworkEngine/DefferedCaller.h"
 #include "UpgradeWindow.h"
 
+class UdpLogViewContext
+{
+public:
+	QTextCursor prevSearchCursor;
+	QTextEdit *logTextEdit;
+};
+
+typedef QMap<QString, boost::shared_ptr<UdpLogViewContext> > QTextEditorContextMap;
+
 class UdpLogViewer : public QMainWindow, IUdpLogManagerEvent, IUpgradeEvent
 {
 	Q_OBJECT
@@ -22,7 +31,7 @@ public:
 	void loadQSS();
 	void loadCurrent();
 	void saveCurrent();
-	QTextEdit *getCurrentLogTextEdit();
+	boost::shared_ptr<UdpLogViewContext> getCurrentLogTextEdit();
 	void doHighlightText(QString text, bool fromFirst = true, bool caseSensitive = false, bool forceMode = true);
 
 protected slots:
@@ -41,6 +50,8 @@ protected slots:
 	void onLogSelectionChanged();
 	void onClickedWordWrap(bool checked);
 	void onClickedIgnoreNewLine(bool checked);
+	void onTabCurrentChanged(int);
+	void onClickedClearSearchText();
 
 protected:
 	bool eventFilter(QObject *object, QEvent *evt);
@@ -80,7 +91,7 @@ private:
 	UdpLogManager manager_;
 
 	QTimer *timerUpdate_;
-	QMap<QString, QTextEdit *> logTextWidgetMap_;
+	QTextEditorContextMap logTextWidgetMap_;
 	QString loadedCSS_;
 	QString searchSelectionFgColor_;
 	QString searchSelectionBgColor_;

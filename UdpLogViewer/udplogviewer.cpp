@@ -3,6 +3,7 @@
 #include "SettingManager.h"
 #include "GlobalEvent.h"
 
+
 UdpLogViewer::UdpLogViewer(QWidget *parent, Qt::WFlags flags)
 : QMainWindow(parent, flags), doHighlightWorking_(false), requestHighlight_(false)
 {
@@ -187,14 +188,17 @@ void UdpLogViewer::saveCurrent()
 void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 {
 	QTextEdit *logTextEdit = NULL;
-	QMap<QString, QTextEdit *>::const_iterator i = logTextWidgetMap_.find(key);
+	QTextEditorContextMap::const_iterator i = logTextWidgetMap_.find(key);
 	if(i == logTextWidgetMap_.end())
 	{
+		// New tab created..
 		logTextEdit = new QTextEdit();
 		QObject::connect(logTextEdit, SIGNAL(selectionChanged()), this, SLOT(onLogSelectionChanged()));
 		logTextEdit->document()->setDefaultStyleSheet(loadedCSS_);
 
-		logTextWidgetMap_.insert(key, logTextEdit);
+		boost::shared_ptr<UdpLogViewContext> ctx = boost::shared_ptr<UdpLogViewContext>(new UdpLogViewContext());
+		ctx->logTextEdit = logTextEdit;
+		logTextWidgetMap_.insert(key, ctx);
 		ui.tabWidget->insertTab(0, logTextEdit, key);
 
 		// word wrap
@@ -206,7 +210,8 @@ void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 	}
 	else
 	{
-		logTextEdit = i.value();
+		// Already the tab exists.
+		logTextEdit = i.value()->logTextEdit;
 		if(!ui.tabPinCheck->isChecked())
 		{
 			int index = ui.tabWidget->indexOf(logTextEdit);
@@ -215,6 +220,12 @@ void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 				ui.tabWidget->setCurrentIndex(index);
 			}
 		}
+	}
+
+	int index = ui.tabWidget->indexOf(logTextEdit);
+	if(index >= 0 && index != ui.tabWidget->currentIndex())
+	{
+		ui.tabWidget->setTabIcon(index, QIcon(":/UdpLogViewer/Resources/img_new.png"));
 	}
 
 
@@ -307,12 +318,19 @@ void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 	}
 }
 
-QTextEdit *UdpLogViewer::getCurrentLogTextEdit() 
+boost::shared_ptr<UdpLogViewContext> UdpLogViewer::getCurrentLogTextEdit() 
 {
 	int index = ui.tabWidget->currentIndex();
 	if(index >= 0)
-		return (QTextEdit*)ui.tabWidget->widget(index);
-	return NULL;
+	{
+		QString tabText = ui.tabWidget->tabText(index);
+		QTextEditorContextMap::iterator i = logTextWidgetMap_.find(tabText);
+		if(i != logTextWidgetMap_.end())
+		{
+			return i.value();
+		}
+	}
+	return boost::shared_ptr<UdpLogViewContext>();
 }
 
 void UdpLogViewer::onTabRemoveSlot()
@@ -321,7 +339,7 @@ void UdpLogViewer::onTabRemoveSlot()
 	if(index >= 0)
 	{
 		QString tabText = ui.tabWidget->tabText(index);
-		QMap<QString, QTextEdit *>::iterator i = logTextWidgetMap_.find(tabText);
+		QTextEditorContextMap::iterator i = logTextWidgetMap_.find(tabText);
 		if(i != logTextWidgetMap_.end())
 		{
 			logTextWidgetMap_.erase(i);
@@ -355,7 +373,7 @@ void UdpLogViewer::onClickedCSSReload()
 
 void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensitive, bool forceMode)
 {
-	qDebug() << "doHighlightText : " << forceMode << fromFirst;
+	qDebug() << "doHighlightText : forceMode=" << forceMode << "fromFirst=" << fromFirst;
 
 	if(forceMode == false && text == lastHighlightText_) 
 	{
@@ -368,9 +386,16 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 		return;
 
 	doHighlightWorking_ = true;
-	QTextEdit *logTextEdit = getCurrentLogTextEdit();
-	if(logTextEdit != NULL)
+	do
 	{
+		boost::shared_ptr<UdpLogViewContext> logTextEditCtx = getCurrentLogTextEdit();
+		if(logTextEditCtx == NULL)
+			break;
+
+		QTextEdit *logTextEdit = logTextEditCtx->logTextEdit;
+		if(logTextEdit == NULL)
+			break;
+
 		int orgValueVert = logTextEdit->verticalScrollBar()->value();
 		int orgValueHor = logTextEdit->horizontalScrollBar()->value();
 		QTextCursor orgCursor = logTextEdit->textCursor();
@@ -385,6 +410,7 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 		}
 		else
 		{
+			logTextEdit->setTextCursor(logTextEditCtx->prevSearchCursor);
 			extraSelections = logTextEdit->extraSelections();
 		}
 
@@ -401,11 +427,13 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 			extraSelections.append(extra);
 		}
 
+		logTextEditCtx->prevSearchCursor = logTextEdit->textCursor();
+
 		logTextEdit->setExtraSelections(extraSelections);
 		logTextEdit->setTextCursor(orgCursor);
 		logTextEdit->verticalScrollBar()->setValue(orgValueVert);
 		logTextEdit->horizontalScrollBar()->setValue(orgValueHor);
-	}
+	} while(false);
 
 	doHighlightWorking_ = false;
 }
@@ -415,7 +443,11 @@ void UdpLogViewer::onLogSelectionChanged()
 	if(doHighlightWorking_ || GlobalEventPtr()->isMousePressed() == true)
 		return;
 
-	QTextEdit *logTextEdit = getCurrentLogTextEdit();
+	boost::shared_ptr<UdpLogViewContext> logTextEditCtx = getCurrentLogTextEdit();
+	if(logTextEditCtx == NULL)
+		return;
+
+	QTextEdit *logTextEdit = logTextEditCtx->logTextEdit;
 	if(logTextEdit != NULL)
 	{
 		QString s = logTextEdit->textCursor().selectedText();
@@ -479,7 +511,11 @@ void UdpLogViewer::onValueChangedWindowTransparent(int value)
 
 void UdpLogViewer::onClickedSearchPrev()
 {
-	QTextEdit *logTextEdit = getCurrentLogTextEdit();
+	boost::shared_ptr<UdpLogViewContext> logTextEditCtx = getCurrentLogTextEdit();
+	if(logTextEditCtx == NULL)
+		return;
+
+	QTextEdit *logTextEdit = logTextEditCtx->logTextEdit;
 	if(logTextEdit != NULL)
 	{
 		QTextDocument::FindFlags flags = QTextDocument::FindBackward;
@@ -499,7 +535,11 @@ void UdpLogViewer::onClickedSearchPrev()
 
 void UdpLogViewer::onClickedSearchNext()
 {
-	QTextEdit *logTextEdit = getCurrentLogTextEdit();
+	boost::shared_ptr<UdpLogViewContext> logTextEditCtx = getCurrentLogTextEdit();
+	if(logTextEditCtx == NULL)
+		return;
+
+	QTextEdit *logTextEdit = logTextEditCtx->logTextEdit;
 	if(logTextEdit != NULL)
 	{
 		QTextDocument::FindFlags flags = 0x0;
@@ -520,7 +560,11 @@ void UdpLogViewer::onClickedScrollPin(bool checked)
 {
 	if(checked == false)
 	{
-		QTextEdit *logTextEdit = getCurrentLogTextEdit();
+		boost::shared_ptr<UdpLogViewContext> logTextEditCtx = getCurrentLogTextEdit();
+		if(logTextEditCtx == NULL)
+			return;
+
+		QTextEdit *logTextEdit = logTextEditCtx->logTextEdit;
 		if(logTextEdit != NULL)
 		{
 			logTextEdit->moveCursor(QTextCursor::End);
@@ -528,6 +572,16 @@ void UdpLogViewer::onClickedScrollPin(bool checked)
 			logTextEdit->horizontalScrollBar()->setValue(0);
 		}
 	}
+}
+
+void UdpLogViewer::onTabCurrentChanged(int index)
+{
+	ui.tabWidget->setTabIcon(index, QIcon());
+}
+
+void UdpLogViewer::onClickedClearSearchText()
+{
+	ui.searchText->setText("");
 }
 
 void UdpLogViewer::onClickedTopWindow(bool checked)

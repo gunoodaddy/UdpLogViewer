@@ -4,5 +4,6 @@
         <file>Resources/UdpLogViewer.ico</file>
         <file>Resources/arrow_mini_left.png</file>
         <file>Resources/arrow_mini_right.png</file>
+        <file>Resources/img_new.png</file>
     </qresource>
 </RCC>

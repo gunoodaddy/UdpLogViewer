@@ -131,6 +131,13 @@
          <widget class="QLineEdit" name="searchText"/>
         </item>
         <item>
+         <widget class="QPushButton" name="clearButton">
+          <property name="text">
+           <string>Clear</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="prevBtn">
           <property name="text">
            <string>Prev (F3)</string>
@@ -394,6 +401,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>tabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>UdpLogViewerClass</receiver>
+   <slot>onTabCurrentChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>332</x>
+     <y>330</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>clearButton</sender>
+   <signal>clicked()</signal>
+   <receiver>UdpLogViewerClass</receiver>
+   <slot>onClickedClearSearchText()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>341</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>277</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onClickedTabAllClear()</slot>
@@ -408,5 +447,7 @@
   <slot>onClickedCaseSensitive(bool)</slot>
   <slot>onClickedWordWrap(bool)</slot>
   <slot>onClickedIgnoreNewLine(bool)</slot>
+  <slot>onTabCurrentChanged(int)</slot>
+  <slot>onClickedClearSearchText()</slot>
  </slots>
 </ui>
