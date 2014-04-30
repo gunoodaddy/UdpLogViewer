@@ -5,7 +5,7 @@
 
 
 UdpLogViewer::UdpLogViewer(QWidget *parent, Qt::WFlags flags)
-: QMainWindow(parent, flags), doHighlightWorking_(false), requestHighlight_(false)
+: QMainWindow(parent, flags), doHighlightWorking_(false), requestHighlight_(false), requestHighlightForceMode_(false)
 {
 	UpgradeManagerPtr()->registerObserver( this );
 
@@ -129,7 +129,9 @@ void UdpLogViewer::onHighlightTimer()
 
 		if(doHighlightWorking_ == false) 
 		{
-			CDefferedCaller::singleShot( boost::bind(&UdpLogViewer::doHighlightText, this, ui.searchText->text(), true, ui.caseSensitiveCheck->isChecked(), false ));
+			CDefferedCaller::singleShot( boost::bind(&UdpLogViewer::doHighlightText, this, ui.searchText->text(), true, ui.caseSensitiveCheck->isChecked(), requestHighlightForceMode_ ));
+			if(requestHighlightForceMode_)
+				requestHighlightForceMode_ = false;
 		}
 	}
 }
@@ -232,6 +234,9 @@ void UdpLogViewer::addLogMessage(const QString &key, const QString &log)
 	// [Log: 222, 87901.005, 226944, EDT]: 
 	QString logMsg = log.trimmed();
 	//logMsg = "13-02-15 17:35:17.604 450686C4 [api] fetchOperations";
+
+	logMsg = logMsg.replace("<", "&lt;");
+	logMsg = logMsg.replace(">", "&gt;");
 
 	if(ui.ignoreNewLineCheck->isChecked() == false)
 		logMsg = logMsg.replace("\n", "<br>");
@@ -371,6 +376,9 @@ void UdpLogViewer::onClickedCSSReload()
 	}
 }
 
+static bool g_orgFormatSettingFlag = false;
+static QTextCharFormat g_orgFormat;
+
 void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensitive, bool forceMode)
 {
 	qDebug() << "doHighlightText : forceMode=" << forceMode << "fromFirst=" << fromFirst;
@@ -399,6 +407,7 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 		int orgValueVert = logTextEdit->verticalScrollBar()->value();
 		int orgValueHor = logTextEdit->horizontalScrollBar()->value();
 		QTextCursor orgCursor = logTextEdit->textCursor();
+
 		QTextDocument::FindFlags flags = 0x0;
 		if(caseSensitive)
 			flags |=  QTextDocument::FindCaseSensitively;
@@ -412,8 +421,11 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 		{
 			logTextEdit->setTextCursor(logTextEditCtx->prevSearchCursor);
 			extraSelections = logTextEdit->extraSelections();
+			if(extraSelections.size() > 0)
+				extraSelections.removeLast();
 		}
 
+		bool find = false;
 
 		QColor fgColor = QColor(searchSelectionFgColor_);
 		QColor bgColor = QColor(searchSelectionBgColor_);
@@ -425,11 +437,17 @@ void UdpLogViewer::doHighlightText(QString text, bool fromFirst, bool caseSensit
 			extra.format.setBackground(bgColor);
 			extra.cursor = logTextEdit->textCursor();
 			extraSelections.append(extra);
+			find = true;
 		}
 
 		logTextEditCtx->prevSearchCursor = logTextEdit->textCursor();
+		logTextEditCtx->prevSearchCursor.setPosition(std::max(0, logTextEditCtx->prevSearchCursor.position() - 100));
+		logTextEditCtx->prevSearchCursor.clearSelection();
 
 		logTextEdit->setExtraSelections(extraSelections);
+
+		orgCursor.clearSelection();
+
 		logTextEdit->setTextCursor(orgCursor);
 		logTextEdit->verticalScrollBar()->setValue(orgValueVert);
 		logTextEdit->horizontalScrollBar()->setValue(orgValueHor);
@@ -576,6 +594,8 @@ void UdpLogViewer::onClickedScrollPin(bool checked)
 
 void UdpLogViewer::onTabCurrentChanged(int index)
 {
+	requestHighlight_ = true;
+	requestHighlightForceMode_ = true;
 	ui.tabWidget->setTabIcon(index, QIcon());
 }
 

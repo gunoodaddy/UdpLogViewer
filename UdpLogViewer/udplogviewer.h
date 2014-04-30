@@ -100,6 +100,7 @@ private:
 	int lastScannedCursorPosition_;
 	bool doHighlightWorking_;
 	bool requestHighlight_;
+	bool requestHighlightForceMode_;
 };
 
 #endif // UdpLogViewer_H
